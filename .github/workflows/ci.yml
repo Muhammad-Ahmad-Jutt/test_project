@@ -22,11 +22,11 @@ jobs:
         run: docker save flask-app:latest > image.tar
 
       # 4. Copy image to EC2
-      - name: Copy to EC2
+      - name: Copy image to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_IP }}
-          username: ec2-user
+          username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: "image.tar"
           target: "/home/ec2-user/app"
