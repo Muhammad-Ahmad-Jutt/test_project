@@ -50,7 +50,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "🚀 Deployment SUCCESS"
+          subject: " Deployment SUCCESS"
           body: "Flask app deploayed successfully on EC2."
           to: ${{ secrets.EMAIL_TO }}
           cc: ${{ secrets.EMAIL_TO }}
@@ -65,7 +65,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "❌ Deployment FAILED"
+          subject: " Deployment FAILED"
           body: "Check GitHub Actions logs."
           to: ${{ secrets.EMAIL_TO }}
           from: GitHub Actions
