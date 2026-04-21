@@ -51,7 +51,7 @@ jobs:
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: "🚀 Deployment SUCCESS"
-          body: "Flask app deployed successfully on EC2."
+          body: "Flask app deploayed successfully on EC2."
           to: ${{ secrets.EMAIL_TO }}
           cc: ${{ secrets.EMAIL_TO }}
           from: GitHub Actions
