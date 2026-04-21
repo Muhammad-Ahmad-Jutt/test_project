@@ -53,6 +53,7 @@ jobs:
           subject: "🚀 Deployment SUCCESS"
           body: "Flask app deployed successfully on EC2."
           to: ${{ secrets.EMAIL_TO }}
+          cc: ${{ secrets.EMAIL_TO }}
           from: GitHub Actions
 
       # 7. FAILURE EMAIL
