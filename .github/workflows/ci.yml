@@ -1,31 +1,70 @@
-name: Flask CI
+name: Flask CI/CD Pipeline
 
 on:
   push:
     branches: [main]
-  pull_request:
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # 1. Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # 2. Build Docker image
+      - name: Build image
+        run: docker build -t flask-app:latest .
+
+      # 3. Save image
+      - name: Save image
+        run: docker save flask-app:latest > image.tar
+
+      # 4. Copy image to EC2
+      - name: Copy to EC2
+        uses: appleboy/scp-action@v0.1.7
         with:
-          python-version: "3.11"
+          host: ${{ secrets.SERVER_IP }}
+          username: ec2-user
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "image.tar"
+          target: "/home/ec2-user/app"
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+      # 5. Run deploy script on EC2
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ec2-user
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            bash /home/ec2-user/app/deploy.sh
 
-      - name: Run basic check
-        run: |
-          python -m py_compile app.py
+      # 6. SUCCESS EMAIL
+      - name: Send success email
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "🚀 Deployment SUCCESS"
+          body: "Flask app deployed successfully on EC2."
+          to: ${{ secrets.EMAIL_TO }}
+          from: GitHub Actions
 
-      - name: Build Docker image
-        run: |
-          docker build -t flask-app .
+      # 7. FAILURE EMAIL
+      - name: Send failure email
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "❌ Deployment FAILED"
+          body: "Check GitHub Actions logs."
+          to: ${{ secrets.EMAIL_TO }}
+          from: GitHub Actions
